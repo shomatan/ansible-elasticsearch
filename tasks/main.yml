@@ -1,10 +1,23 @@
 ---
+
+- command: sysctl vm.max_map_count
+  changed_when: false
+  register: max_map_count
+
+- name: Modify memory map count.
+  command: sysctl -w vm.max_map_count=262144
+  when: '"262144" not in max_map_count.stdout'
+
 - stat: path=/usr/share/elasticsearch/bin/elasticsearch-systemd-pre-exec
   register: result
 
 - name: Ensure elasticsearch is installed.
   yum: name=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.0.0.rpm state=installed
   when: result.stat.exists == False
+
+- name: Copy kibana main configuration in place.
+  template: src=elasticsearch.yml.j2 dest=/etc/elasticsearch/elasticsearch.yml
+  notify: restart elasticsearch
 
 - name: Ensure elasticsearch is started and enabled to start at boot.
   service: name=elasticsearch state=started enabled=yes
