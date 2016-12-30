@@ -1,5 +1,5 @@
 # Ansible role: elasticsearch
-Installs and configures jenkins.
+Installs and configures elasticsearch.
 
 ## Requirements
 None.
